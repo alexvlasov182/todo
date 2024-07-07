@@ -1,7 +1,12 @@
 import React from "react";
 
-const TodoListItem = () => {
-  return <span>Drinks Coffee</span>;
+// eslint-disable-next-line react/prop-types
+const TodoListItem = ({ label, important = false }) => {
+  const style = {
+    color: important ? "tomato" : "balck",
+  };
+
+  return <span style={style}>{label}</span>;
 };
 
 export default TodoListItem;
