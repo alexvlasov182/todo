@@ -18,6 +18,7 @@ export default class App extends Component {
       this.createTodoItem("Have a lunch"),
       this.createTodoItem("Backend on Golang"),
     ],
+    term: "",
   };
 
   createTodoItem(label) {
@@ -28,16 +29,29 @@ export default class App extends Component {
     };
   }
 
-  toggleProperty(arr, id, propName) {
-    const idx = arr.findIndex((el) => el.id === id);
+  addItem = (text) => {
+    const newItem = this.createTodoItem(text);
 
-    // 1. update object
-    const oldItem = arr[idx];
-    const newItem = { ...oldItem, [propName]: !oldItem[propName] };
+    this.setState(({ todoData }) => {
+      const newArr = [...todoData, newItem];
 
-    // 2. construct new array
-    return [...arr.slice(0, idx), newItem, ...arr.slice(idx + 1)];
-  }
+      return {
+        todoData: newArr,
+      };
+    });
+  };
+
+  deleteItem = (id) => {
+    this.setState(({ todoData }) => {
+      const idx = todoData.findIndex((el) => el.id === id);
+
+      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
+
+      return {
+        todoData: newArray,
+      };
+    });
+  };
 
   onToggleImportant = (id) => {
     this.setState(({ todoData }) => {
@@ -55,32 +69,35 @@ export default class App extends Component {
     });
   };
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
+  toggleProperty(arr, id, propName) {
+    const idx = arr.findIndex((el) => el.id === id);
 
-      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
+    // 1. update object
+    const oldItem = arr[idx];
+    const newItem = { ...oldItem, [propName]: !oldItem[propName] };
 
-      return {
-        todoData: newArray,
-      };
-    });
+    // 2. construct new array
+    return [...arr.slice(0, idx), newItem, ...arr.slice(idx + 1)];
+  }
+
+  onSerachChange = (term) => {
+    this.setState({ term });
   };
 
-  addItem = (text) => {
-    const newItem = this.createTodoItem(text);
+  search(items, term) {
+    if (term.length === 0) {
+      return items;
+    }
 
-    this.setState(({ todoData }) => {
-      const newArr = [...todoData, newItem];
-
-      return {
-        todoData: newArr,
-      };
+    return items.filter((item) => {
+      return item.label.toLowerCase().indexOf(term.toLowerCase()) > -1;
     });
-  };
+  }
 
   render() {
-    const { todoData } = this.state;
+    const { todoData, term } = this.state;
+
+    const visibleItems = this.search(todoData, term);
     const doneCount = todoData.filter((el) => el.done).length;
     const todoCount = todoData.length - doneCount;
 
@@ -88,11 +105,11 @@ export default class App extends Component {
       <div className="todo-app">
         <AppHeader toDo={todoCount} done={doneCount} />
         <div className="top-panel d-flex">
-          <SearchPanel />
+          <SearchPanel onSearchChange={this.onSerachChange} />
           <ItemStatusFilter />
         </div>
         <TodoList
-          todos={todoData}
+          todos={visibleItems}
           onDeleted={this.deleteItem}
           onToggleImportant={this.onToggleImportant}
           onToggleDone={this.onToggleDone}
