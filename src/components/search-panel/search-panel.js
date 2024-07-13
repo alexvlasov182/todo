@@ -10,6 +10,7 @@ export default class SearchPanel extends Component {
   onSearchChange = (e) => {
     const term = e.target.value;
     this.setState({ term });
+    // eslint-disable-next-line react/prop-types
     this.props.onSearchChange(term);
   };
 
